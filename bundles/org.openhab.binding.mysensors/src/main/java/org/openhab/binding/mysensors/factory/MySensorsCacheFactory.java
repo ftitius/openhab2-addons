@@ -29,8 +29,9 @@ import com.google.gson.stream.JsonWriter;
  * Cache may be used to store information across restart of MySensors connection.
  *
  * @author Andrea Cioni - Initial contribution
- *
+ *         asdf asd
  */
+
 public class MySensorsCacheFactory {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -74,29 +75,27 @@ public class MySensorsCacheFactory {
     private synchronized <T> T jsonFromFile(String fileName, T def, Type clasz) {
         T ret = def;
 
+        File f = new File(CACHE_BASE_PATH + "/" + fileName + CACHE_FILE_SUFFIX);
         try {
-            File f = new File(CACHE_BASE_PATH + "/" + fileName + CACHE_FILE_SUFFIX);// FTi
-
             if (f.exists()) {
-                logger.debug("Cache file: {} exist.", GIVEN_IDS_CACHE_FILE + CACHE_FILE_SUFFIX);
+                logger.debug("Cache file: {} exist.", f.getName());
                 JsonReader jReader = new JsonReader(new FileReader(f));
                 ret = gson.fromJson(jReader, clasz);
+                jReader.close();
             } else {
-                logger.debug("Cache file: {} not exist.", GIVEN_IDS_CACHE_FILE + CACHE_FILE_SUFFIX);
+                logger.debug("Cache file: {} not exist.", f.getName());
                 if (def != null) {
-                    logger.debug("Cache file: {} not exist. Default passed, creating it...",
-                            GIVEN_IDS_CACHE_FILE + CACHE_FILE_SUFFIX);
+                    logger.debug("Cache file: {} not exist. Default passed, creating it...", f.getName());
                     jsonToFile(fileName, def, clasz);
                 } else {
-                    logger.warn("Cache file: {} not exist. Default NOT passed, cache won't be created!",
-                            GIVEN_IDS_CACHE_FILE + CACHE_FILE_SUFFIX);
+                    logger.warn("Cache file: {} not exist. Default NOT passed, cache won't be created!", f.getName());
                 }
             }
         } catch (Exception e) {
             logger.error("Cache reading throws an exception, cause: {} ({})", e.getClass(), e.getMessage());
         }
 
-        logger.debug("Cache ({}) content: {}", GIVEN_IDS_CACHE_FILE, ret);
+        logger.debug("Cache ({}) content: {}", f.getName(), ret);
         return ret;
     }
 
@@ -106,11 +105,11 @@ public class MySensorsCacheFactory {
     private synchronized <T> void jsonToFile(String fileName, T obj, Type clasz) {
         JsonWriter jsonWriter = null;
         try {
-            File f = new File(CACHE_BASE_PATH + "/" + fileName + CACHE_FILE_SUFFIX);// FTi
+            File f = new File(CACHE_BASE_PATH + "/" + fileName + CACHE_FILE_SUFFIX);
 
             jsonWriter = new JsonWriter(new FileWriter(f));
 
-            logger.debug("Writing on cache {}, content: {}", GIVEN_IDS_CACHE_FILE, gson.toJson(obj, clasz));
+            logger.debug("Writing on cache {}, content: {}", f.getName(), gson.toJson(obj, clasz));
             gson.toJson(obj, clasz, jsonWriter);
         } catch (Exception e) {
             logger.error("Cache writing throws an exception, cause: {} ({})", e.getClass(), e.getMessage());
@@ -125,16 +124,16 @@ public class MySensorsCacheFactory {
         }
     }
 
-    public void deleteCache(String cacheId) {
-        File f = new File(CACHE_BASE_PATH + "/" + cacheId + CACHE_FILE_SUFFIX);
+    public void deleteCache(String fileName) {
+        File f = new File(CACHE_BASE_PATH + "/" + fileName + CACHE_FILE_SUFFIX);
         if (f.exists()) {
             if (f.delete()) {
-                logger.debug("Cache {} file deleted", cacheId);
+                logger.debug("Cache {} file deleted", f.getName());
             } else {
-                logger.error("Cannot delete cache {}", cacheId);
+                logger.error("Cannot delete cache {}", f.getName());
             }
         } else {
-            logger.warn("Cache {} not exist", cacheId);
+            logger.warn("Cache {} not exist", f.getName());
         }
     }
 }
