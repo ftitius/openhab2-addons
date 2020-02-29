@@ -70,13 +70,16 @@ public class MySensorsMqttConnection extends MySensorsAbstractConnection impleme
                 final MqttService mqtt = (MqttService) bc.getService(sr);
                 if (mqtt != null) {
                     new MySensorsMqttService().setMqttService(mqtt);
+                } else {
+                    logger.debug("Could not get MqttService");
                 }
+            } else {
+                logger.debug("Could not get MqttServiceReference");
             }
         }
         // ## End workaround
 
         if (MySensorsMqttService.getMqttService() == null) {
-            logger.error("MqttService is null!");
             return false;
         }
 
@@ -121,7 +124,11 @@ public class MySensorsMqttConnection extends MySensorsAbstractConnection impleme
     protected void stopConnection() {
         in = null;
         out = null;
-        connection.unsubscribe(myMqttSub.getTopic(), myMqttSub);
+
+        if (connection != null) {
+            connection.unsubscribe(myMqttSub.getTopic(), myMqttSub);
+            connection = null;
+        }
     }
 
     /**
